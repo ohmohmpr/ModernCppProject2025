@@ -9,9 +9,10 @@ using Dataset = dataloader::Dataset;
 
 int main() {
   const dataloader::Dataset dataset = Dataset("Data");
-  const PoseAndCloud pose_and_coud = dataset[0];
+  const PoseAndCloud pose_and_cloud = dataset[100];
   std::cout << "dataset.size: " << dataset.size() << std::endl;
 
-  visualize(pose_and_coud.second);
+  std::cout << pose_and_cloud.first << std::endl;
+  // visualize(pose_and_cloud.second);
   return 0;
 }

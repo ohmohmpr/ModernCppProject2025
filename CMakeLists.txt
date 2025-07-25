@@ -12,11 +12,11 @@ find_package(Eigen3 3.4 REQUIRED)
 find_package(Open3D REQUIRED HINTS ${PROJECT_SOURCE_DIR}/3rdparty/open3d/lib/cmake)
 
 add_library(dataloader)
-target_sources(dataloader PUBLIC ${CMAKE_CURRENT_LIST_DIR}/dataloader/dataloader.cpp)
+target_sources(dataloader PUBLIC ${CMAKE_CURRENT_LIST_DIR}/lib/dataloader/dataloader.cpp)
 target_link_libraries(dataloader PUBLIC Eigen3::Eigen Open3D::Open3D)
-target_include_directories(dataloader PUBLIC ${CMAKE_CURRENT_LIST_DIR}/dataloader)
+target_include_directories(dataloader PUBLIC ${CMAKE_CURRENT_LIST_DIR}/lib/dataloader)
 
-include_directories(visualizer)
+include_directories(include/visualizer)
 
 add_executable(grid_mapping)
 target_sources(grid_mapping PRIVATE ${CMAKE_CURRENT_LIST_DIR}/src/main.cpp)

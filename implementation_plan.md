@@ -1,8 +1,16 @@
 # Grid Mapping
 
+## 0. CMakeLists.txt
+
+use fetch content might be a better idea.
+
 ## 1. Iteration/Pipeline
 
-use std::file to read all data in Data directory and count the number of files.
+use std::file to read all data in Data directory  
+ANSWER = Dataset()  
+and count the number of files.  
+ANSWER = dataset.size()  
+
 --> ranges_raw and poses_raw
 
 ## 2. Occupation mapping Data Structure
