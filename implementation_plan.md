@@ -27,3 +27,7 @@ ANSWER = dataset.size()
 --> prior = 0.50
 --> prob_occ = 0.90
 --> prob_free = 0.35
+
+## 5. time
+
+implement time class for time measurement.
