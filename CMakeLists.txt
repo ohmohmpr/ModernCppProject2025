@@ -16,9 +16,14 @@ target_sources(dataloader PUBLIC ${CMAKE_CURRENT_LIST_DIR}/lib/dataloader/datalo
 target_link_libraries(dataloader PUBLIC Eigen3::Eigen Open3D::Open3D)
 target_include_directories(dataloader PUBLIC ${CMAKE_CURRENT_LIST_DIR}/lib/dataloader)
 
+add_library(map)
+target_sources(map PUBLIC ${CMAKE_CURRENT_LIST_DIR}/lib/map/map.cpp)
+target_link_libraries(map PUBLIC Eigen3::Eigen Open3D::Open3D)
+target_include_directories(map PUBLIC ${CMAKE_CURRENT_LIST_DIR}/lib/map)
+
 include_directories(include/visualizer)
 
 add_executable(grid_mapping)
 target_sources(grid_mapping PRIVATE ${CMAKE_CURRENT_LIST_DIR}/src/main.cpp)
-target_link_libraries(grid_mapping PRIVATE dataloader)
+target_link_libraries(grid_mapping PRIVATE dataloader map)
 # target_include_directories(grid_mapping PRIVATE ${CMAKE_CURRENT_LIST_DIR}/src/main.cpp)

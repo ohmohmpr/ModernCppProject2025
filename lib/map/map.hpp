@@ -8,15 +8,26 @@
 using Vector3dVector = std::vector<Eigen::Vector3d>;
 using PoseAndCloud = std::pair<Eigen::Matrix4d, Vector3dVector>;
 
-namespace grid_mapping {
-class Dataset {
+namespace voxel_map {
+class Map {
 public:
-  Dataset(const std::string &data_dir);
-  std::size_t size() const { return pointcloud_files_.size(); }
-  PoseAndCloud operator[](const int idx) const;
+  Map(const float size_, const float res_);
+  // std::size_t size() const { return voxels_.size(); }
+  int shape;
+  Eigen::Vector3i origin() const { return origin_; };
+  // PoseAndCloud operator[](const int idx) const;
 
 private:
   std::vector<std::string> pointcloud_files_;
-  std::vector<Eigen::Matrix4d> poses_;
+  Vector3dVector voxels_;
+  float size = 0;
+  float res = 0;
+  Eigen::Vector3i origin_;
+  // std::unordered_map<Eigen ::Vector3i, Voxel, hash_eigen ::hash<Eigen
+  // ::Vector3i>> 4 voxels_;
+
+  // std::unordered_map<Eigen ::Vector3i, hash_eigen::hash<Eigen::Vector3i>>
+  // voxels_;
+  // how to convert to std::vector<> for visualization
 };
-} // namespace grid_mapping
+} // namespace voxel_map
