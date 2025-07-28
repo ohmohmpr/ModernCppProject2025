@@ -21,9 +21,14 @@ target_sources(map PUBLIC ${CMAKE_CURRENT_LIST_DIR}/lib/map/map.cpp)
 target_link_libraries(map PUBLIC Eigen3::Eigen Open3D::Open3D)
 target_include_directories(map PUBLIC ${CMAKE_CURRENT_LIST_DIR}/lib/map)
 
+add_library(bresenham)
+target_sources(bresenham PUBLIC ${CMAKE_CURRENT_LIST_DIR}/lib/bresenham/bresenham.cpp)
+target_link_libraries(bresenham PUBLIC Eigen3::Eigen Open3D::Open3D)
+target_include_directories(bresenham PUBLIC ${CMAKE_CURRENT_LIST_DIR}/lib/bresenham)
+
 include_directories(include/visualizer)
 
 add_executable(grid_mapping)
 target_sources(grid_mapping PRIVATE ${CMAKE_CURRENT_LIST_DIR}/src/main.cpp)
-target_link_libraries(grid_mapping PRIVATE dataloader map)
+target_link_libraries(grid_mapping PRIVATE dataloader map bresenham)
 # target_include_directories(grid_mapping PRIVATE ${CMAKE_CURRENT_LIST_DIR}/src/main.cpp)
