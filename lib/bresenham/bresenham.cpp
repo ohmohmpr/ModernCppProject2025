@@ -9,61 +9,148 @@
 #include <utility>
 #include <vector>
 
-namespace fs = std::filesystem;
+namespace {
 
-// namespace {
+int test_bresenham(int i, int start, int end) {
 
-// std::vector<std::string> ReadPointCloudFiles(const fs::path &pointcloud_path)
-// {
-//   std::vector<std::string> filenames;
-//   for (const auto &file : fs::directory_iterator(pointcloud_path)) {
-//     if (file.path().extension() == ".ply") {
-//       filenames.emplace_back(file.path().string());
-//     }
-//   }
-//   if (filenames.empty()) {
-//     std::cerr << pointcloud_path << "contains no files with .ply extension"
-//               << std::endl;
-//     exit(1);
-//   }
-//   std::sort(filenames.begin(), filenames.end());
+  if (end >= start) {
+    if (i < start) {
+      return 1;
+    }
+    if (i > end) {
+      return 1;
+    }
+  } else {
+    if (i > start) {
+      return 1;
+    }
+    if (i < end) {
+      return 1;
+    }
+  }
 
-//   return filenames;
-// }
+  return 0;
+}
 
-// Vector3dVector ExtractPointCloud(const std::string &filename) {
-//   open3d::geometry::PointCloud pointcloud;
-//   open3d::io::ReadPointCloudFromPLY(filename, pointcloud,
-//                                     open3d::io::ReadPointCloudOption());
-//   return pointcloud.points_;
-// }
+int determine_step(int start, int end) {
 
-// std::vector<Eigen::Matrix4d> ReadPoses(const std::string &filename) {
-//   std::ifstream file(filename);
-//   std::vector<Eigen::Matrix4d> poses;
-//   Eigen::Matrix4d pose = Eigen::Matrix4d::Identity();
-//   while (file >> pose(0, 0) >> pose(0, 1) >> pose(0, 2) >> pose(0, 3) >>
-//          pose(1, 0) >> pose(1, 1) >> pose(1, 2) >> pose(1, 3) >> pose(2, 0)
-//          >> pose(2, 1) >> pose(2, 2) >> pose(2, 3)) {
-//     poses.emplace_back(pose);
-//   }
-//   return poses;
-// }
+  if (start > end) {
+    return -1;
+  }
+  return 1;
+}
 
-// } // namespace
+void find_coordinates(int main_start, int second_axis_start,
+                      int third_axis_start, int main_end, int second_axis_end,
+                      int third_axis_end,
+                      std::vector<Eigen::Vector3i> &coordinates_int) {
+
+  int main_i = main_start;
+  int second_axis_i = second_axis_start;
+  int third_axis_i = third_axis_start;
+
+  int delta_main = std::abs(main_end - main_start);
+  int delta_second = std::abs(second_axis_end - second_axis_start);
+  int delta_third = std::abs(third_axis_end - third_axis_start);
+
+  int main_step = determine_step(main_start, main_end);
+  int second_step = determine_step(second_axis_start, second_axis_end);
+  int third_step = determine_step(third_axis_start, third_axis_end);
+
+  int p_second = 2 * delta_second - delta_main;
+  int p_third = 2 * delta_third - delta_main;
+  while (main_i != main_end) {
+    main_i = main_i + main_step;
+    if (p_second > 0) {
+      second_axis_i = second_axis_i + second_step;
+      p_second = p_second - 2 * delta_main;
+    }
+    if (p_third > 0) {
+      third_axis_i = third_axis_i + third_step;
+      p_third = p_third - 2 * delta_main;
+    }
+    p_second = p_second + 2 * delta_second;
+    p_third = p_third + 2 * delta_third;
+    if (test_bresenham(main_i, main_start, main_end) == 1) {
+      std::cerr << "main_i error" << std::endl;
+      std::cout << "main_start: " << main_start << std::endl;
+      std::cout << "main_i: " << main_i << std::endl;
+      std::cout << "main_end: " << main_end << std::endl;
+      break;
+    }
+    if (test_bresenham(second_axis_i, second_axis_start, second_axis_end) ==
+        1) {
+      std::cerr << "second_axis_i error" << std::endl;
+      std::cout << "second_axis_start: " << second_axis_start << std::endl;
+      std::cout << "second_axis_i: " << second_axis_i << std::endl;
+      std::cout << "second_axis_end: " << second_axis_end << std::endl;
+      break;
+    }
+    if (test_bresenham(third_axis_i, third_axis_start, third_axis_end) == 1) {
+      std::cerr << "third_axis_i error" << std::endl;
+      std::cout << "third_axis_start: " << third_axis_start << std::endl;
+      std::cout << "third_axis_i: " << third_axis_i << std::endl;
+      std::cout << "third_axis_end: " << third_axis_end << std::endl;
+      break;
+    }
+    coordinates_int.push_back({main_i, second_axis_i, third_axis_i});
+  }
+}
+
+int find_diving_axis(Eigen::Vector3i &pose_on_map,
+                     Eigen::Vector3i &cloud_on_map) {
+
+  int x_start = pose_on_map.x();
+  int y_start = pose_on_map.y();
+  int z_start = pose_on_map.z();
+  int x_end = cloud_on_map.x();
+  int y_end = cloud_on_map.y();
+  int z_end = cloud_on_map.z();
+
+  int x_abs = std::abs(x_end - x_start);
+  int y_abs = std::abs(y_end - y_start);
+  int z_abs = std::abs(z_end - z_start);
+
+  int axis_index = 0;
+  int xyz_abs = std::max({x_abs, y_abs, z_abs});
+  if (xyz_abs == x_abs) {
+    axis_index = 0;
+  } else if (xyz_abs == y_abs) {
+    axis_index = 1;
+  } else if (xyz_abs == z_abs) {
+    axis_index = 2;
+  };
+
+  return axis_index;
+}
+
+} // namespace
 
 namespace bresenham {
 Bresenham::Bresenham(Eigen::Vector3i &pose_on_map,
                      Eigen::Vector3i &cloud_on_map) {
-  std::cout << "test" << std::endl;
-  //   pointcloud_files_ = ReadPointCloudFiles(fs::path(data_dir) / "PLY/");
 
-  //   poses_.reserve(pointcloud_files_.size());
-  //   poses_ = ReadPoses(fs::path(data_dir) / "gt_poses.txt");
+  int x_start = pose_on_map.x();
+  int y_start = pose_on_map.y();
+  int z_start = pose_on_map.z();
+  coordinates_int.push_back({x_start, y_start, z_start});
+
+  int x_end = cloud_on_map.x();
+  int y_end = cloud_on_map.y();
+  int z_end = cloud_on_map.z();
+
+  int axis_index = find_diving_axis(pose_on_map, cloud_on_map);
+
+  if (axis_index == 0) {
+    find_coordinates(x_start, y_start, z_start, x_end, y_end, z_end,
+                     coordinates_int);
+  } else if (axis_index == 1) {
+    find_coordinates(y_start, x_start, z_start, y_end, x_end, z_end,
+                     coordinates_int);
+  } else if (axis_index == 2) {
+    find_coordinates(z_start, x_start, y_start, z_end, x_end, y_end,
+                     coordinates_int);
+  };
 }
 
-// PoseAndCloud Dataset::operator[](const int idx) const {
-//   return std::make_pair(poses_[idx],
-//   ExtractPointCloud(pointcloud_files_[idx]));
-// }
 } // namespace bresenham

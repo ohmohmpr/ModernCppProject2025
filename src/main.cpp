@@ -1,6 +1,6 @@
+#include "bresenham.hpp"
 #include "dataloader.hpp"
 #include "map.hpp"
-#include "bresenham.hpp"
 #include "open3d/Open3D.h"
 #include "visualizer.hpp"
 #include <iostream>
@@ -69,7 +69,7 @@ int main() {
 
   // 1. init map here
   // occ_gridmap()
-  float map_res = 0.01;
+  float map_res = 0.05;
   voxel_map::Map occ_gridmap = voxel_map::Map(100, map_res);
   std::cout << occ_gridmap.shape << std::endl;
 
@@ -81,7 +81,9 @@ int main() {
   // prior
   // 2. grid_mapping_with_known_poses(poses_raw, ranges_raw, occ_gridmap,
   // map_res, prob_occ, prob_free, prior)
+  // for (int i = 1000; i < 1001; i++) {
   for (int i = 0; i < dataset.size(); i++) {
+    std::cout << "i: " << i << std::endl;
     const PoseAndCloud pose_and_cloud = dataset[i];
     auto pose = pose_and_cloud.first;
     auto cloud = pose_and_cloud.second;
@@ -89,14 +91,28 @@ int main() {
     std::vector<Eigen::Vector3i> clouds_on_map =
         cloud_to_map(cloud, pose, occ_gridmap, map_res);
 
+    // for (int j = 0; j < 1; j++) {
     for (int j = 0; j < clouds_on_map.size(); j++) {
-      bresenham::Bresenham(pose_on_map, clouds_on_map[j]);
+      // std::cout << "j: " << j << std::endl;
+
+      bresenham::Bresenham bresenham =
+          bresenham::Bresenham(pose_on_map, clouds_on_map[j]);
+      std::vector<Eigen::Vector3i> coordinates_int = bresenham.coordinates_int;
+      // for (auto &element : coordinates_int) {
+      //   std::cout << element.x() << std::endl;
+      //   std::cout << element.y() << std::endl;
+      //   std::cout << element.z() << std::endl;
+      //   std::cout << "pose_on_map : " << pose_on_map << std::endl;
+      //   std::cout << "clouds_on_map[j] : " << clouds_on_map[j] <<
+      //   std::endl;
+      // }
     }
-    std::cout << "frame id: " << i << std::endl;
-    std::cout << "pose_on_map : " << pose_on_map << std::endl;
-    std::cout << "cloud size : " << cloud.size() << std::endl;
-    std::cout << "cloud_on_map size : " << clouds_on_map.size() << std::endl;
-    std::cout << "pose : " << pose << std::endl;
+
+    // std::cout << "frame id: " << i << std::endl;
+    // std::cout << "pose_on_map : " << pose_on_map << std::endl;
+    // std::cout << "cloud size : " << cloud.size() << std::endl;
+    // std::cout << "cloud_on_map size : " << clouds_on_map.size() <<
+    // std::endl; std::cout << "pose : " << pose << std::endl;
 
     // grid_mapping_with_known_poses()
   }
