@@ -1,4 +1,3 @@
-#include "bresenham.hpp"
 #include "dataloader.hpp"
 #include "map.hpp"
 #include "open3d/Open3D.h"
@@ -18,21 +17,16 @@ int main() {
   std::cout << "dataset.size: " << dataset.size() << std::endl;
 
   // 1. init map here
-  // occ_gridmap()
   float map_res = 0.5;
-  voxel_map::Map occ_gridmap = voxel_map::Map(100, map_res);
-  std::cout << occ_gridmap.shape << std::endl;
+  float prob_occ = 0.90;
+  float prob_free = 0.35;
+  float prior = 0.50;
+  voxel_map::Map occ_gridmap =
+      voxel_map::Map(100, map_res, prob_occ, prob_free, prior);
 
-  // pose_and_cloud.first = poses_raw
-  // pose_and_cloud.second = ranges_raw
-  // occ_gridmap
-  // prob_occ
-  // prob_free
-  // prior
-  // 2. grid_mapping_with_known_poses(poses_raw, ranges_raw, occ_gridmap,
-  // map_res, prob_occ, prob_free, prior)
-  // for (int i = 0; i < 400; i++) {
-  for (int i = 0; i < dataset.size(); i++) {
+  // 2. Occupy Grid mapping
+  for (int i = 0; i < 400; i++) {
+    // for (int i = 0; i < dataset.size(); i++) {
     std::cout << "frame id: " << i << std::endl;
 
     const PoseAndCloud pose_and_cloud = dataset[i];
@@ -41,28 +35,9 @@ int main() {
 
     occ_gridmap.Voxelization(pose, cloud);
     occ_gridmap.Voxelization(pose);
-
-    // std::vector<Eigen::Vector3i> clouds_on_map =
-    //     cloud_to_map(cloud, pose, occ_gridmap, map_res);
-
-    // for (int j = 0; j < 1; j++) {
-    // for (int j = 0; j < clouds_on_map.size(); j++) {
-    //   std::cout << "j: " << j << std::endl;
-    //   std::cout << "clouds_on_map.size()j: " << clouds_on_map.size()
-    //             << std::endl;
-
-    // bresenham::Bresenham bresenham =
-    //     bresenham::Bresenham(pose_on_map, clouds_on_map[j]);
-    // auto clouds_on_mapj = occ_gridmap.Voxelization(clouds_on_map[j]);
-    // }
-
-    // std::cout << "clouds_on_mapj : " << occ_gridmap.voxels_.size() <<
-    // std::endl;
-
-    // grid_mapping_with_known_poses()
   }
 
-  // 3. visualize(occ_gridmap);
+  // 3. visualize;
   std::vector<Eigen::Vector3d> pointcloud = occ_gridmap.GetPointCloud();
   visualize(pointcloud);
   return 0;

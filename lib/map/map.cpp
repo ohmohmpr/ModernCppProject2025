@@ -1,4 +1,5 @@
 #include "map.hpp"
+#include "bresenham.hpp"
 
 #include <open3d/Open3D.h>
 
@@ -17,6 +18,14 @@ namespace {} // namespace
 
 namespace voxel_map {
 Map::Map(const float size_, const float res_) : size(size_), res(res_) {
+  shape = static_cast<int>(round(size_ / res_));
+  origin_ = {shape / 2, shape / 2, shape / 2};
+}
+
+Map::Map(const float size_, const float res_, const float prob_occ_,
+         const float prob_free_, const float prior_)
+    : size(size_), res(res_), prob_occ(prob_occ_), prob_free(prob_free_),
+      prior(prior_) {
   shape = static_cast<int>(round(size_ / res_));
   origin_ = {shape / 2, shape / 2, shape / 2};
 }
@@ -75,6 +84,10 @@ void Map::cloud_to_map(Eigen::Matrix4d &pose, const Vector3dVector &cloud) {
     auto it = voxels_.find(pointcloud_index);
 
     if (it == voxels_.end()) // not found
+      //    // bresenham::Bresenham bresenham =
+      //     bresenham::Bresenham(pose_on_map, clouds_on_map[j]);
+      // auto clouds_on_mapj = occ_gridmap.Voxelization(clouds_on_map[j]);
+      // }
       voxels_.insert({pointcloud_index, vox});
   }
 };
@@ -104,5 +117,9 @@ Eigen::Vector3i Map::world_to_map(Eigen::Matrix4d &pose) {
 Eigen::Vector3i Map::pose_to_voxel(Eigen::Matrix4d &pose) {
   return world_to_map(pose);
 };
+
+// util
+void inversion_model(){};
+void log_odd(){};
 
 } // namespace voxel_map

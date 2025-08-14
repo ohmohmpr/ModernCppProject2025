@@ -15,7 +15,9 @@ ANSWER = dataset.size()
 
 ## 2. Occupation mapping Data Structure
 
---> Voxelhash map?
+--> Voxelhash map? split between map algorithm and voxel map.  
+--> inverse_model  
+--> log_odd  
 
 ## 3. Map_resolution
 
@@ -23,11 +25,11 @@ ANSWER = dataset.size()
 
 ## 4. Prob_occ, prob_free, prior
 
---> map_res = 0.25
---> prior = 0.50
---> prob_occ = 0.90
---> prob_free = 0.35
+--> map_res = 0.25  
+--> prior = 0.50  
+--> prob_occ = 0.90  
+--> prob_free = 0.35  
 
-## 5. time
+## remarked
 
-implement time class for time measurement.
+-->lambda function

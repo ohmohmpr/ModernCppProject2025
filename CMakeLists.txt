@@ -16,15 +16,15 @@ target_sources(dataloader PUBLIC ${CMAKE_CURRENT_LIST_DIR}/lib/dataloader/datalo
 target_link_libraries(dataloader PUBLIC Eigen3::Eigen Open3D::Open3D)
 target_include_directories(dataloader PUBLIC ${CMAKE_CURRENT_LIST_DIR}/lib/dataloader)
 
-add_library(map)
-target_sources(map PUBLIC ${CMAKE_CURRENT_LIST_DIR}/lib/map/map.cpp)
-target_link_libraries(map PUBLIC Eigen3::Eigen Open3D::Open3D)
-target_include_directories(map PUBLIC ${CMAKE_CURRENT_LIST_DIR}/lib/map)
-
 add_library(bresenham)
 target_sources(bresenham PUBLIC ${CMAKE_CURRENT_LIST_DIR}/lib/bresenham/bresenham.cpp)
 target_link_libraries(bresenham PUBLIC Eigen3::Eigen Open3D::Open3D)
 target_include_directories(bresenham PUBLIC ${CMAKE_CURRENT_LIST_DIR}/lib/bresenham)
+
+add_library(map)
+target_sources(map PUBLIC ${CMAKE_CURRENT_LIST_DIR}/lib/map/map.cpp)
+target_link_libraries(map PUBLIC Eigen3::Eigen Open3D::Open3D bresenham)
+target_include_directories(map PUBLIC ${CMAKE_CURRENT_LIST_DIR}/lib/map)
 
 include_directories(include/visualizer)
 include_directories(include)

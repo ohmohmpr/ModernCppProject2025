@@ -34,10 +34,11 @@ public:
 class Map {
 public:
   Map(const float size_, const float res_);
+  Map(const float size_, const float res_, const float prob_occ_,
+      const float prob_free_, const float prior_);
   // std::size_t size() const { return voxels_.size(); }
   int shape;
   Eigen::Vector3i origin() const { return origin_; };
-  float GetMapRes() { return res; }
 
   std ::unordered_map<Eigen ::Vector3i, voxel_map::Voxel,
                       std::hash<Eigen::Vector3i>>
@@ -55,14 +56,18 @@ public:
                                Eigen::Vector3d &pointcloud);
   void cloud_to_map(Eigen::Matrix4d &pose, const Vector3dVector &cloud);
 
+  void inversion_model(){};
+  void log_odd(){};
+
 private:
   std::vector<std::string> pointcloud_files_;
   std::vector<Eigen::Vector3d> points_;
   float res = 0;
   float size = 0;
   Eigen::Vector3i origin_;
+  float prob_occ = 0.90;
+  float prob_free = 0.35;
+  float prior = 0.50;
   Eigen::Vector3i pose_map_ = Eigen::Vector3i();
-
-  // how to convert to std::vector<> for visualization
 };
 } // namespace voxel_map
