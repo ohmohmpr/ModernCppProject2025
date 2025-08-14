@@ -27,6 +27,7 @@ target_link_libraries(bresenham PUBLIC Eigen3::Eigen Open3D::Open3D)
 target_include_directories(bresenham PUBLIC ${CMAKE_CURRENT_LIST_DIR}/lib/bresenham)
 
 include_directories(include/visualizer)
+include_directories(include)
 
 add_executable(grid_mapping)
 target_sources(grid_mapping PRIVATE ${CMAKE_CURRENT_LIST_DIR}/src/main.cpp)

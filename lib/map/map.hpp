@@ -62,6 +62,7 @@ private:
   float res = 0;
   float size = 0;
   Eigen::Vector3i origin_;
+  Eigen::Vector3i pose_map_ = Eigen::Vector3i();
 
   // how to convert to std::vector<> for visualization
 };

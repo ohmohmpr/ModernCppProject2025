@@ -2,6 +2,7 @@
 #include "dataloader.hpp"
 #include "map.hpp"
 #include "open3d/Open3D.h"
+#include "scopedTimer.hpp"
 #include "visualizer.hpp"
 #include <iostream>
 
@@ -46,13 +47,14 @@ using Dataset = dataloader::Dataset;
 
 int main() {
 
+  voxel_map::ScopedTimer timer;
   const dataloader::Dataset dataset = Dataset("Data");
 
   std::cout << "dataset.size: " << dataset.size() << std::endl;
 
   // 1. init map here
   // occ_gridmap()
-  float map_res = 0.05;
+  float map_res = 0.5;
   voxel_map::Map occ_gridmap = voxel_map::Map(100, map_res);
   std::cout << occ_gridmap.shape << std::endl;
 

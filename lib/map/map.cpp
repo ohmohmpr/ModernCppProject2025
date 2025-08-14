@@ -40,9 +40,16 @@ std ::unordered_map<Eigen ::Vector3i, voxel_map::Voxel,
                     std::hash<Eigen::Vector3i>>
 Map::Voxelization(Eigen::Matrix4d &pose) {
 
-  Eigen::Vector3i indice_on_map = pose_to_voxel(pose);
-  voxels_[indice_on_map] = indice_on_map;
-  voxels_[indice_on_map].point_ = pose.col(3).head(3);
+  Voxel vox;
+  Eigen::Vector3i pose_map_ = pose_to_voxel(pose);
+
+  vox.index_ = pose_map_;
+  vox.point_ = pose.col(3).head(3);
+
+  voxels_.insert({pose_map_, vox});
+
+  // voxels_[pose_map_] = pose_map_;
+  // voxels_[pose_map_].point_ = pose.col(3).head(3);
 
   return voxels_;
 }
@@ -58,13 +65,11 @@ std::vector<Eigen::Vector3d> &Map::GetPointCloud() {
 
 Eigen::Vector3i Map::world_to_map(Eigen::Matrix4d &pose) {
 
-  Eigen::Vector3i pose_map = Eigen::Vector3i();
+  pose_map_.x() = origin_.x() + static_cast<int>(round(pose(0, 3) / res));
+  pose_map_.y() = origin_.y() + static_cast<int>(round(pose(1, 3) / res));
+  pose_map_.z() = origin_.z() + static_cast<int>(round(pose(2, 3) / res));
 
-  pose_map.x() = origin_.x() + static_cast<int>(round(pose(0, 3) / res));
-  pose_map.y() = origin_.y() + static_cast<int>(round(pose(1, 3) / res));
-  pose_map.z() = origin_.z() + static_cast<int>(round(pose(2, 3) / res));
-
-  return pose_map;
+  return pose_map_;
 };
 
 Eigen::Vector3i Map::pose_to_voxel(Eigen::Matrix4d &pose) {
