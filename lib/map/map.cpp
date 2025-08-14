@@ -5,73 +5,70 @@
 #include <Eigen/Core>
 #include <filesystem>
 #include <fstream>
+#include <iostream>
 #include <string>
+#include <unordered_set>
 #include <utility>
 #include <vector>
 
 // namespace fs = std::filesystem;
 
-// namespace {
-
-// std::vector<std::string> ReadPointCloudFiles(const fs::path &pointcloud_path)
-// {
-//   std::vector<std::string> filenames;
-//   for (const auto &file : fs::directory_iterator(pointcloud_path)) {
-//     if (file.path().extension() == ".ply") {
-//       filenames.emplace_back(file.path().string());
-//     }
+// struct CompareEigenPoints {
+//   bool operator()(const Eigen::Vector3i &a, const Eigen::Vector3i &b) const {
+//     return std::lexicographical_compare(a.data(), a.data() + 3, b.data(),
+//                                         b.data() + 3);
 //   }
-//   if (filenames.empty()) {
-//     std::cerr << pointcloud_path << "contains no files with .ply extension"
-//               << std::endl;
-//     exit(1);
-//   }
-//   std::sort(filenames.begin(), filenames.end());
+// };
 
-//   return filenames;
-// }
-
-// Vector3dVector ExtractPointCloud(const std::string &filename) {
-//   open3d::geometry::PointCloud pointcloud;
-//   open3d::io::ReadPointCloudFromPLY(filename, pointcloud,
-//                                     open3d::io::ReadPointCloudOption());
-//   return pointcloud.points_;
-// }
-
-// std::vector<Eigen::Matrix4d> ReadPoses(const std::string &filename) {
-//   std::ifstream file(filename);
-//   std::vector<Eigen::Matrix4d> poses;
-//   Eigen::Matrix4d pose = Eigen::Matrix4d::Identity();
-//   while (file >> pose(0, 0) >> pose(0, 1) >> pose(0, 2) >> pose(0, 3) >>
-//          pose(1, 0) >> pose(1, 1) >> pose(1, 2) >> pose(1, 3) >> pose(2, 0)
-//          >> pose(2, 1) >> pose(2, 2) >> pose(2, 3)) {
-//     poses.emplace_back(pose);
-//   }
-//   return poses;
-// }
-
-// } // namespace
+namespace {} // namespace
 
 namespace voxel_map {
 Map::Map(const float size_, const float res_) : size(size_), res(res_) {
   shape = static_cast<int>(round(size_ / res_));
   origin_ = {shape / 2, shape / 2, shape / 2};
-  Vector3dVector voxels_ = std::vector<Eigen::Vector3d>();
-  voxels_.reserve(shape);
-  //   std::cout << "number_cells: " << number_cells << std::endl;
-  //   std::cout << "voxels_.size: " << voxels_.max_size() << std::endl;
 }
 
-// Dataset::Dataset(const std::string& data_dir) {
-//     pointcloud_files_ = ReadPointCloudFiles(fs::path(data_dir) / "PLY/");
+std ::unordered_map<Eigen ::Vector3i, voxel_map::Voxel,
+                    std::hash<Eigen::Vector3i>>
+Map::Voxelization(const Eigen::Vector3i &indice_on_map) {
 
-//     poses_.reserve(pointcloud_files_.size());
-//     poses_ = ReadPoses(fs::path(data_dir) / "gt_poses.txt");
-// }
+  voxels_[indice_on_map] = indice_on_map;
+  return voxels_;
+}
 
-// PoseAndCloud Dataset::operator[](
-//         const int idx) const {
-//     return std::make_pair(poses_[idx],
-//     ExtractPointCloud(pointcloud_files_[idx]));
-// }
+std ::unordered_map<Eigen ::Vector3i, voxel_map::Voxel,
+                    std::hash<Eigen::Vector3i>>
+Map::Voxelization(Eigen::Matrix4d &pose) {
+
+  Eigen::Vector3i indice_on_map = pose_to_voxel(pose);
+  voxels_[indice_on_map] = indice_on_map;
+  voxels_[indice_on_map].point_ = pose.col(3).head(3);
+
+  return voxels_;
+}
+
+std::vector<Eigen::Vector3d> &Map::GetPointCloud() {
+
+  for (auto v : voxels_) {
+    points_.emplace_back(v.second.point_);
+  };
+
+  return points_;
+}
+
+Eigen::Vector3i Map::world_to_map(Eigen::Matrix4d &pose) {
+
+  Eigen::Vector3i pose_map = Eigen::Vector3i();
+
+  pose_map.x() = origin_.x() + static_cast<int>(round(pose(0, 3) / res));
+  pose_map.y() = origin_.y() + static_cast<int>(round(pose(1, 3) / res));
+  pose_map.z() = origin_.z() + static_cast<int>(round(pose(2, 3) / res));
+
+  return pose_map;
+};
+
+Eigen::Vector3i Map::pose_to_voxel(Eigen::Matrix4d &pose) {
+  return world_to_map(pose);
+};
+
 } // namespace voxel_map
