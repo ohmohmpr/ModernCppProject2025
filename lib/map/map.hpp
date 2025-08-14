@@ -43,18 +43,17 @@ public:
                       std::hash<Eigen::Vector3i>>
       voxels_;
 
-  std ::unordered_map<Eigen ::Vector3i, voxel_map::Voxel,
-                      std::hash<Eigen::Vector3i>>
-  Voxelization(const Eigen::Vector3i &indice_on_map);
+  void Voxelization(Eigen::Matrix4d &pose, const Vector3dVector &cloud);
 
-  std ::unordered_map<Eigen ::Vector3i, voxel_map::Voxel,
-                      std::hash<Eigen::Vector3i>>
-  Voxelization(Eigen::Matrix4d &pose);
+  void Voxelization(Eigen::Matrix4d &pose);
   // PoseAndCloud operator[](const int idx) const;
 
   std::vector<Eigen::Vector3d> &GetPointCloud();
   Eigen::Vector3i world_to_map(Eigen::Matrix4d &pose);
   Eigen::Vector3i pose_to_voxel(Eigen::Matrix4d &pose);
+  Eigen::Vector3i world_to_map(Eigen::Vector3i &pointcloud_index,
+                               Eigen::Vector3d &pointcloud);
+  void cloud_to_map(Eigen::Matrix4d &pose, const Vector3dVector &cloud);
 
 private:
   std::vector<std::string> pointcloud_files_;

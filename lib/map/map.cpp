@@ -13,13 +13,6 @@
 
 // namespace fs = std::filesystem;
 
-// struct CompareEigenPoints {
-//   bool operator()(const Eigen::Vector3i &a, const Eigen::Vector3i &b) const {
-//     return std::lexicographical_compare(a.data(), a.data() + 3, b.data(),
-//                                         b.data() + 3);
-//   }
-// };
-
 namespace {} // namespace
 
 namespace voxel_map {
@@ -28,17 +21,21 @@ Map::Map(const float size_, const float res_) : size(size_), res(res_) {
   origin_ = {shape / 2, shape / 2, shape / 2};
 }
 
-std ::unordered_map<Eigen ::Vector3i, voxel_map::Voxel,
-                    std::hash<Eigen::Vector3i>>
-Map::Voxelization(const Eigen::Vector3i &indice_on_map) {
+void Map::Voxelization(Eigen::Matrix4d &pose, const Vector3dVector &cloud) {
 
-  voxels_[indice_on_map] = indice_on_map;
-  return voxels_;
+  Eigen::Vector3i pose_map_ = pose_to_voxel(pose);
+  auto it = voxels_.find(pose_map_);
+
+  // found
+  if (it != voxels_.end()) {
+    return;
+  } else {
+    std::cout << "not found" << std::endl;
+    cloud_to_map(pose, cloud);
+  }
 }
 
-std ::unordered_map<Eigen ::Vector3i, voxel_map::Voxel,
-                    std::hash<Eigen::Vector3i>>
-Map::Voxelization(Eigen::Matrix4d &pose) {
+void Map::Voxelization(Eigen::Matrix4d &pose) {
 
   Voxel vox;
   Eigen::Vector3i pose_map_ = pose_to_voxel(pose);
@@ -46,12 +43,10 @@ Map::Voxelization(Eigen::Matrix4d &pose) {
   vox.index_ = pose_map_;
   vox.point_ = pose.col(3).head(3);
 
-  voxels_.insert({pose_map_, vox});
+  auto it = voxels_.find(pose_map_);
 
-  // voxels_[pose_map_] = pose_map_;
-  // voxels_[pose_map_].point_ = pose.col(3).head(3);
-
-  return voxels_;
+  if (it == voxels_.end()) // not found
+    voxels_.insert({pose_map_, vox});
 }
 
 std::vector<Eigen::Vector3d> &Map::GetPointCloud() {
@@ -62,6 +57,40 @@ std::vector<Eigen::Vector3d> &Map::GetPointCloud() {
 
   return points_;
 }
+
+void Map::cloud_to_map(Eigen::Matrix4d &pose, const Vector3dVector &cloud) {
+
+  Eigen::Matrix3d R = pose.block(0, 0, 3, 3);
+  Eigen::Vector3d t = pose.col(3).head(3);
+
+  for (auto p : cloud) {
+    Eigen::Vector3d pointcloud = R * p + t;
+    Eigen::Vector3i pointcloud_index = Eigen::Vector3i();
+    pointcloud_index = world_to_map(pointcloud_index, pointcloud);
+
+    Voxel vox;
+    vox.index_ = pointcloud_index;
+    vox.point_ = pointcloud;
+
+    auto it = voxels_.find(pointcloud_index);
+
+    if (it == voxels_.end()) // not found
+      voxels_.insert({pointcloud_index, vox});
+  }
+};
+
+Eigen::Vector3i Map::world_to_map(Eigen::Vector3i &pointcloud_index,
+                                  Eigen::Vector3d &pointcloud) {
+
+  pointcloud_index.x() =
+      pose_map_.x() + static_cast<int>(round(pointcloud(0) / res));
+  pointcloud_index.y() =
+      pose_map_.y() + static_cast<int>(round(pointcloud(1) / res));
+  pointcloud_index.z() =
+      pose_map_.z() + static_cast<int>(round(pointcloud(2) / res));
+
+  return pointcloud_index;
+};
 
 Eigen::Vector3i Map::world_to_map(Eigen::Matrix4d &pose) {
 
