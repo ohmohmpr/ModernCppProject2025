@@ -32,4 +32,4 @@ ANSWER = dataset.size()
 
 ## remarked
 
--->lambda function
+--> change map_res if have time.
