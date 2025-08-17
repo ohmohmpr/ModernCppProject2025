@@ -40,9 +40,7 @@ float inverse_sensor_model(float p) { return prob2logodds(p); };
 namespace voxel_map {
 G_Map::G_Map(const float size_, const float res_) : size(size_), res(res_) {
   double shape_f = round(size_ / res_);
-  origin_f_ = {shape_f / 2, shape_f / 2, shape_f / 2};
   shape = static_cast<int>(round(size_ / res_));
-  origin_ = {shape / 2, shape / 2, shape / 2};
 }
 
 G_Map::G_Map(const float size_, const float res_, const float prob_occ_,
@@ -50,9 +48,7 @@ G_Map::G_Map(const float size_, const float res_, const float prob_occ_,
     : size(size_), res(res_), prob_occ(prob_occ_), prob_free(prob_free_),
       prior(prior_) {
   double shape_f = round(size_ / res_);
-  origin_f_ = {shape_f / 2, shape_f / 2, shape_f / 2};
   shape = static_cast<int>(round(size_ / res_));
-  origin_ = {shape / 2, shape / 2, shape / 2};
 }
 
 void G_Map::Voxelization(Eigen::Matrix4d &pose, const Vector3dVector &cloud) {
@@ -99,8 +95,6 @@ void G_Map::cloud_to_map(Eigen::Matrix4d &pose, const Vector3dVector &cloud) {
   Eigen::Matrix3d R = pose.block(0, 0, 3, 3);
   Eigen::Vector3d t = pose.col(3).head(3);
 
-  // for (auto p : cloud) {
-  // for (int i = 0; i < 10; i++) {
   for (int i = 0; i < cloud.size(); i++) {
     Eigen::Vector3d p = cloud[i];
     Eigen::Vector3d pointcloud = R * p + t;
@@ -136,7 +130,6 @@ void G_Map::cloud_to_map(Eigen::Matrix4d &pose, const Vector3dVector &cloud) {
           vox_between.prop =
               logodds2prob(prev_prop + inverse_sensor_model(prob_free) -
                            prob2logodds(prior));
-          // std::cout << "vox_between.prop :" << vox_between.prop << std::endl;
           voxels_.insert({coor, vox_between});
 
         } else { // FOUND but free
@@ -156,7 +149,6 @@ void G_Map::cloud_to_map(Eigen::Matrix4d &pose, const Vector3dVector &cloud) {
       float prev_prop = prob2logodds(prior);
       vox_end.prop = logodds2prob(prev_prop + inverse_sensor_model(prob_occ) -
                                   prob2logodds(prior));
-      // std::cout << "vox_end.prop :" << vox_end.prop << std::endl;
 
       voxels_.insert({pointcloud_index, vox_end});
 
@@ -166,7 +158,6 @@ void G_Map::cloud_to_map(Eigen::Matrix4d &pose, const Vector3dVector &cloud) {
       float prev_prop = prob2logodds(it->second.prop);
       it->second.prop = logodds2prob(
           prev_prop + inverse_sensor_model(prob_occ) - prob2logodds(prior));
-      // std::cout << "it->second.prop :" << it->second.prop << std::endl;
     }
   }
 };

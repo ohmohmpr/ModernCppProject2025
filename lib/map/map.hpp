@@ -37,9 +37,7 @@ public:
   G_Map(const float size_, const float res_);
   G_Map(const float size_, const float res_, const float prob_occ_,
         const float prob_free_, const float prior_);
-  // std::size_t size() const { return voxels_.size(); }
   int shape;
-  Eigen::Vector3i origin() const { return origin_; };
 
   std ::unordered_map<Eigen ::Vector3i, voxel_map::Voxel,
                       std::hash<Eigen::Vector3i>>
@@ -48,7 +46,6 @@ public:
   void Voxelization(Eigen::Matrix4d &pose, const Vector3dVector &cloud);
 
   void Voxelization(Eigen::Matrix4d &pose);
-  // PoseAndCloud operator[](const int idx) const;
 
   std::vector<Eigen::Vector3d> &GetPointCloud();
   Eigen::Vector3i world_to_map(Eigen::Matrix4d &pose);
@@ -57,16 +54,10 @@ public:
                                Eigen::Vector3d &pointcloud);
   void cloud_to_map(Eigen::Matrix4d &pose, const Vector3dVector &cloud);
 
-  Eigen::Vector3i get_pose_map() { return pose_map_; };
-  float get_res() { return res; };
-
 private:
-  std::vector<std::string> pointcloud_files_;
   std::vector<Eigen::Vector3d> points_;
   float res = 0;
   float size = 0;
-  Eigen::Vector3i origin_;
-  Eigen::Vector3d origin_f_;
   float prob_occ = 0.90;
   float prob_free = 0.35;
   float prior = 0.50;

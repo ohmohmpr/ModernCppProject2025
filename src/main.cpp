@@ -14,8 +14,6 @@ int main() {
   voxel_map::ScopedTimer timer;
   const dataloader::Dataset dataset = Dataset("Data");
 
-  std::cout << "dataset.size: " << dataset.size() << std::endl;
-
   // 1. init map here
   float map_res = 0.5;
   float prob_occ = 0.90;
@@ -26,9 +24,9 @@ int main() {
 
   // 2. Occupy Grid mapping
   Eigen::Matrix4d pose_tmp = Eigen::Matrix4d();
-  // int idx = 1000;
-  // for (int i = idx; i < idx + 200; i++) {
-  for (int i = 0; i < dataset.size(); i++) {
+  int idx = 4500;
+  for (int i = idx; i < idx + 100; i++) {
+    // for (int i = 0; i < dataset.size(); i++) {
     std::cout << "frame id: " << i << std::endl;
 
     const PoseAndCloud pose_and_cloud = dataset[i];
@@ -42,7 +40,6 @@ int main() {
 
   // 3. visualize;
   std::vector<Eigen::Vector3d> pointcloud = occ_gridmap.GetPointCloud();
-  // std::cout << "pose_tmp :" << pose_tmp << std::endl;
-  visualize(pointcloud, pose_tmp);
+  visualize(pointcloud);
   return 0;
 }

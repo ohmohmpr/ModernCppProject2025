@@ -31,5 +31,4 @@ include_directories(include)
 
 add_executable(grid_mapping)
 target_sources(grid_mapping PRIVATE ${CMAKE_CURRENT_LIST_DIR}/src/main.cpp)
-target_link_libraries(grid_mapping PRIVATE dataloader map bresenham)
-# target_include_directories(grid_mapping PRIVATE ${CMAKE_CURRENT_LIST_DIR}/src/main.cpp)
+target_link_libraries(grid_mapping PRIVATE dataloader map)
