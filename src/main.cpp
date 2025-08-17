@@ -24,10 +24,11 @@ int main() {
 
   // 2. Occupancy Grid mapping
   Eigen::Matrix4d pose_tmp = Eigen::Matrix4d();
-  int idx = 4500;
-  for (int i = idx; i < idx + 100; i++) {
-    // for (int i = 0; i < dataset.size(); i++) {
-    std::cout << "frame id: " << i << std::endl;
+  // int idx = 4500;
+  // for (int i = idx; i < idx + 200; i++) {
+  for (int i = 0; i < dataset.size(); i++) {
+    std::cout << "Frame id: " << i << std::endl;
+    voxel_map::ScopedTimer timer;
 
     const PoseAndCloud pose_and_cloud = dataset[i];
     Eigen::Matrix4d pose = pose_and_cloud.first;

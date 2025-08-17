@@ -95,9 +95,14 @@ void G_Map::cloud_to_map(Eigen::Matrix4d &pose, const Vector3dVector &cloud) {
   Eigen::Matrix3d R = pose.block(0, 0, 3, 3);
   Eigen::Vector3d t = pose.col(3).head(3);
 
-  for (int i = 0; i < cloud.size(); i++) {
-    Eigen::Vector3d p = cloud[i];
-    Eigen::Vector3d pointcloud = R * p + t;
+  Vector3dVector transformed_pcd;
+  transformed_pcd.resize(cloud.size());
+
+  std::transform(cloud.begin(), cloud.end(), transformed_pcd.begin(),
+                 [&R, &t](const Eigen::Vector3d &p) { return R * p + t; });
+
+  for (int i = 0; i < transformed_pcd.size(); i++) {
+    Eigen::Vector3d pointcloud = transformed_pcd[i];
     Eigen::Vector3i pointcloud_index = Eigen::Vector3i();
     pointcloud_index = world_to_map(pointcloud_index, pointcloud);
 
@@ -121,6 +126,7 @@ void G_Map::cloud_to_map(Eigen::Matrix4d &pose, const Vector3dVector &cloud) {
           Voxel vox_between;
           vox_between.index_ = coor;
           Eigen::Vector3d coor_3d = Eigen::Vector3d();
+
           coor_3d.x() = static_cast<double>(res * (coor(0, 0)));
           coor_3d.y() = static_cast<double>(res * (coor(1, 0)));
           coor_3d.z() = static_cast<double>(res * (coor(2, 0)));
