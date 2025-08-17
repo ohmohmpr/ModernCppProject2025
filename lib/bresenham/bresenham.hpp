@@ -12,11 +12,14 @@ namespace bresenham {
 class Bresenham {
 public:
   Bresenham(Eigen::Vector3i &pose_on_map, Eigen::Vector3i &cloud_on_map);
-  // std::size_t size() const { return pointcloud_files_.size(); }
-  // PoseAndCloud operator[](const int idx) const;
   std::vector<Eigen::Vector3i> coordinates_int;
 
+  void find_coordinates(int main_start, int second_axis_start,
+                        int third_axis_start, int main_end, int second_axis_end,
+                        int third_axis_end,
+                        std::vector<Eigen::Vector3i> &coordinates_int);
+
 private:
-  // std::vector<std::string> pointcloud_files_;
+  int diving_axis_ = -1;
 };
 } // namespace bresenham

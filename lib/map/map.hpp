@@ -29,13 +29,14 @@ public:
 public:
   Eigen::Vector3i index_ = Eigen::Vector3i(0, 0, 0);
   Eigen::Vector3d point_ = Eigen::Vector3d(0, 0, 0);
+  float prop = 0.50;
 };
 
-class Map {
+class G_Map {
 public:
-  Map(const float size_, const float res_);
-  Map(const float size_, const float res_, const float prob_occ_,
-      const float prob_free_, const float prior_);
+  G_Map(const float size_, const float res_);
+  G_Map(const float size_, const float res_, const float prob_occ_,
+        const float prob_free_, const float prior_);
   // std::size_t size() const { return voxels_.size(); }
   int shape;
   Eigen::Vector3i origin() const { return origin_; };
@@ -58,6 +59,8 @@ public:
 
   void inversion_model(){};
   void log_odd(){};
+  Eigen::Vector3i get_pose_map() { return pose_map_; };
+  float get_res() { return res; };
 
 private:
   std::vector<std::string> pointcloud_files_;
@@ -65,6 +68,7 @@ private:
   float res = 0;
   float size = 0;
   Eigen::Vector3i origin_;
+  Eigen::Vector3d origin_f_;
   float prob_occ = 0.90;
   float prob_free = 0.35;
   float prior = 0.50;

@@ -16,7 +16,7 @@ ANSWER = dataset.size()
 ## 2. Occupation mapping Data Structure
 
 --> Voxelhash map? split between map algorithm and voxel map.  
---> inverse_model  
+--> inverse_sensor_model  
 --> log_odd  
 
 ## 3. Map_resolution
