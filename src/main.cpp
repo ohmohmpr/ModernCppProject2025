@@ -27,7 +27,7 @@ int main() {
   // 2. Occupy Grid mapping
   Eigen::Matrix4d pose_tmp = Eigen::Matrix4d();
   // int idx = 1000;
-  // for (int i = idx; i < idx + 1000; i++) {
+  // for (int i = idx; i < idx + 200; i++) {
   for (int i = 0; i < dataset.size(); i++) {
     std::cout << "frame id: " << i << std::endl;
 

@@ -57,8 +57,6 @@ public:
                                Eigen::Vector3d &pointcloud);
   void cloud_to_map(Eigen::Matrix4d &pose, const Vector3dVector &cloud);
 
-  void inversion_model(){};
-  void log_odd(){};
   Eigen::Vector3i get_pose_map() { return pose_map_; };
   float get_res() { return res; };
 

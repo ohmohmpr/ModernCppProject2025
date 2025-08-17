@@ -17,9 +17,23 @@
 
 namespace {
 
-float prob2logodds(float p) { return logf(p / (1 - p)); }
+struct CompareEigenPoints {
+  bool operator()(const Eigen::Vector3i &a, const Eigen::Vector3i &b) const {
+    return std::lexicographical_compare(a.data(), a.data() + 3, b.data(),
+                                        b.data() + 3);
+  }
+};
 
-float logodds2prob(float l) { return 1 - (1 / (1 + logf(l))); }
+float prob2logodds(float p) {
+  if (p == 1) {
+    return 0;
+  }
+  return log(p / (1 - p));
+}
+
+float logodds2prob(float l) { return 1 - (1 / (1 + exp(l))); }
+
+float inverse_sensor_model(float p) { return prob2logodds(p); };
 
 } // namespace
 
@@ -47,12 +61,12 @@ void G_Map::Voxelization(Eigen::Matrix4d &pose, const Vector3dVector &cloud) {
   auto it = voxels_.find(pose_map_);
 
   // found
-  if (it != voxels_.end()) {
-    return;
-  } else {
-    std::cout << "not found" << std::endl;
-    cloud_to_map(pose, cloud);
-  }
+  // if (it != voxels_.end()) {
+  //   return;
+  // } else {
+  // std::cout << "not found" << std::endl;
+  cloud_to_map(pose, cloud);
+  // }
 }
 
 void G_Map::Voxelization(Eigen::Matrix4d &pose) {
@@ -65,14 +79,16 @@ void G_Map::Voxelization(Eigen::Matrix4d &pose) {
 
   auto it = voxels_.find(pose_map_);
 
-  if (it == voxels_.end()) // not found
-    voxels_.insert({pose_map_, vox});
+  // if (it == voxels_.end()) // not found
+  voxels_.insert({pose_map_, vox});
 }
 
 std::vector<Eigen::Vector3d> &G_Map::GetPointCloud() {
 
   for (auto v : voxels_) {
-    points_.emplace_back(v.second.point_);
+    if (v.second.prop >= prob_occ) {
+      points_.emplace_back(v.second.point_);
+    }
   };
 
   return points_;
@@ -91,16 +107,10 @@ void G_Map::cloud_to_map(Eigen::Matrix4d &pose, const Vector3dVector &cloud) {
     Eigen::Vector3i pointcloud_index = Eigen::Vector3i();
     pointcloud_index = world_to_map(pointcloud_index, pointcloud);
 
-    Voxel vox_end;
-    vox_end.index_ = pointcloud_index;
-    vox_end.point_ = pointcloud;
-
     auto it = voxels_.find(pointcloud_index);
 
-    if (it == voxels_.end()) // not found
+    if (it == voxels_.end()) // not found or free
     {
-      // vox_end
-      voxels_.insert({pointcloud_index, vox_end});
 
       Eigen::Vector3i translation = pose_map_;
       Eigen::Vector3i pointcloud_index_translation =
@@ -111,16 +121,52 @@ void G_Map::cloud_to_map(Eigen::Matrix4d &pose, const Vector3dVector &cloud) {
 
       for (auto coor : coordinates_int) {
 
-        Voxel vox_between;
-        vox_between.index_ = coor;
-        Eigen::Vector3d coor_3d = Eigen::Vector3d();
-        coor_3d.x() = static_cast<double>(res * (coor(0, 0)));
-        coor_3d.y() = static_cast<double>(res * (coor(1, 0)));
-        coor_3d.z() = static_cast<double>(res * (coor(2, 0)));
+        auto it = voxels_.find(coor);
+        if (it == voxels_.end()) // not found but free
+        {
+          Voxel vox_between;
+          vox_between.index_ = coor;
+          Eigen::Vector3d coor_3d = Eigen::Vector3d();
+          coor_3d.x() = static_cast<double>(res * (coor(0, 0)));
+          coor_3d.y() = static_cast<double>(res * (coor(1, 0)));
+          coor_3d.z() = static_cast<double>(res * (coor(2, 0)));
+          vox_between.point_ = coor_3d;
+          float prev_prop = prob2logodds(prior);
+          // init the free space, the prop prop here is 0.35;
+          vox_between.prop =
+              logodds2prob(prev_prop + inverse_sensor_model(prob_free) -
+                           prob2logodds(prior));
+          // std::cout << "vox_between.prop :" << vox_between.prop << std::endl;
+          voxels_.insert({coor, vox_between});
 
-        vox_between.point_ = coor_3d;
-        voxels_.insert({coor, vox_between});
+        } else { // FOUND but free
+          // update the free space, the prop of free space go lower;
+          float prev_prop = prob2logodds(it->second.prop);
+          it->second.prop =
+              logodds2prob(prev_prop + inverse_sensor_model(prob_free) -
+                           prob2logodds(prior));
+          voxels_.insert({coor, it->second});
+        }
       }
+
+      Voxel vox_end;
+      vox_end.index_ = pointcloud_index;
+      vox_end.point_ = pointcloud;
+      // vox_end
+      float prev_prop = prob2logodds(prior);
+      vox_end.prop = logodds2prob(prev_prop + inverse_sensor_model(prob_occ) -
+                                  prob2logodds(prior));
+      // std::cout << "vox_end.prop :" << vox_end.prop << std::endl;
+
+      voxels_.insert({pointcloud_index, vox_end});
+
+    } else {
+      // FOUND for end point
+      // vox_end
+      float prev_prop = prob2logodds(it->second.prop);
+      it->second.prop = logodds2prob(
+          prev_prop + inverse_sensor_model(prob_occ) - prob2logodds(prior));
+      // std::cout << "it->second.prop :" << it->second.prop << std::endl;
     }
   }
 };
@@ -150,9 +196,5 @@ Eigen::Vector3i G_Map::world_to_map(Eigen::Matrix4d &pose) {
 Eigen::Vector3i G_Map::pose_to_voxel(Eigen::Matrix4d &pose) {
   return world_to_map(pose);
 };
-
-// util
-void inversion_model(){};
-void log_odd(){};
 
 } // namespace voxel_map
