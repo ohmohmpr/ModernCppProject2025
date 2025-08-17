@@ -1,7 +1,5 @@
 .cache
 .DS_Store
 build
-build.sh
 Data
 project_assignment.pdf
-3rdparty

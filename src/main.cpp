@@ -14,7 +14,7 @@ int main() {
   voxel_map::ScopedTimer timer;
   const dataloader::Dataset dataset = Dataset("Data");
 
-  // 1. init map here
+  // 1. Init map here
   float map_res = 0.5;
   float prob_occ = 0.90;
   float prob_free = 0.35;
@@ -22,7 +22,7 @@ int main() {
   voxel_map::G_Map occ_gridmap =
       voxel_map::G_Map(100, map_res, prob_occ, prob_free, prior);
 
-  // 2. Occupy Grid mapping
+  // 2. Occupancy Grid mapping
   Eigen::Matrix4d pose_tmp = Eigen::Matrix4d();
   int idx = 4500;
   for (int i = idx; i < idx + 100; i++) {
@@ -38,7 +38,7 @@ int main() {
     occ_gridmap.Voxelization(pose);
   }
 
-  // 3. visualize;
+  // 3. Visualize where point cloud with prob > 0.9 is shown.
   std::vector<Eigen::Vector3d> pointcloud = occ_gridmap.GetPointCloud();
   visualize(pointcloud);
   return 0;

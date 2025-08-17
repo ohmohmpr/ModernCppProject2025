@@ -1,4 +1,5 @@
-cmake_minimum_required(VERSION 3.22)
+cmake_minimum_required(VERSION 3.14...3.27)
+
 project(grid_mapping LANGUAGES CXX)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
@@ -6,10 +7,20 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17")
 
+include(FetchContent)
+
+FetchContent_Declare(
+  Open3D
+  URL https://github.com/isl-org/Open3D/releases/download/v0.18.0/open3d-devel-linux-x86_64-cxx11-abi-0.18.0.tar.xz
+  SOURCE_DIR Open3D
+ )
+
+FetchContent_MakeAvailable(Open3D)
+
 # Locate Eigen3 Library dependency
 find_package(Eigen3 3.4 REQUIRED)
 # Locate Open3D Library dependency
-find_package(Open3D REQUIRED HINTS ${PROJECT_SOURCE_DIR}/3rdparty/open3d/lib/cmake)
+find_package(Open3D REQUIRED HINTS ${PROJECT_BINARY_DIR}/Open3D/lib/cmake)
 
 add_library(dataloader)
 target_sources(dataloader PUBLIC ${CMAKE_CURRENT_LIST_DIR}/lib/dataloader/dataloader.cpp)
