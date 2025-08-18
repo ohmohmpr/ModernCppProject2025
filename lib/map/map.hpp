@@ -34,10 +34,9 @@ public:
 
 class G_Map {
 public:
-  G_Map(const float size_, const float res_);
-  G_Map(const float size_, const float res_, const float prob_occ_,
-        const float prob_free_, const float prior_);
-  int shape;
+  G_Map(const float res_);
+  G_Map(const float res_, const float prob_occ_, const float prob_free_,
+        const float prior_);
 
   std ::unordered_map<Eigen ::Vector3i, voxel_map::Voxel,
                       std::hash<Eigen::Vector3i>>

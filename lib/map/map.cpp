@@ -38,18 +38,11 @@ float inverse_sensor_model(float p) { return prob2logodds(p); };
 } // namespace
 
 namespace voxel_map {
-G_Map::G_Map(const float size_, const float res_) : size(size_), res(res_) {
-  double shape_f = round(size_ / res_);
-  shape = static_cast<int>(round(size_ / res_));
-}
+G_Map::G_Map(const float res_) : res(res_) {}
 
-G_Map::G_Map(const float size_, const float res_, const float prob_occ_,
-             const float prob_free_, const float prior_)
-    : size(size_), res(res_), prob_occ(prob_occ_), prob_free(prob_free_),
-      prior(prior_) {
-  double shape_f = round(size_ / res_);
-  shape = static_cast<int>(round(size_ / res_));
-}
+G_Map::G_Map(const float res_, const float prob_occ_, const float prob_free_,
+             const float prior_)
+    : res(res_), prob_occ(prob_occ_), prob_free(prob_free_), prior(prior_) {}
 
 void G_Map::Voxelization(Eigen::Matrix4d &pose, const Vector3dVector &cloud) {
 

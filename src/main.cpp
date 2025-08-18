@@ -20,7 +20,7 @@ int main() {
   float prob_free = 0.35;
   float prior = 0.50;
   voxel_map::G_Map occ_gridmap =
-      voxel_map::G_Map(100, map_res, prob_occ, prob_free, prior);
+      voxel_map::G_Map(map_res, prob_occ, prob_free, prior);
 
   // 2. Occupancy Grid mapping
   Eigen::Matrix4d pose_tmp = Eigen::Matrix4d();
